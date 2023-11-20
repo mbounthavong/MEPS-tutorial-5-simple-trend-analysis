@@ -15,11 +15,11 @@ knitr::opts_chunk$set(cache = TRUE)
 ```
 
 # Introduction
-Analyzing trends can be a tricky matter. You have to consider many thing such as the autoregressive correlation between values across the time interval or the seasonal effects that occur and are unrelated to the risk factor. All these issues contribute to the difficulty and challenge of trend analysis. However, there are simple ways to perform rudimentary trend analysis with linear models that might be useful for most stakeholders. 
+Analyzing trends can be a tricky matter. You have to consider many things such as the autoregressive correlation between values across the time interval or the seasonal effects that occur and are unrelated to the risk factor. All these issues contribute to the difficulty and challenge of trend analysis. However, there are simple ways to perform rudimentary trend analysis with linear models that might be useful for most stakeholders. 
 
 Linear models are useful because they are easy to interpret. There is no re-transformation needed, and the outputs are interpreted in terms of real units. Non-linear models may require re-transformation or some kind of adjustment to get the $\beta$ coefficients to be interpretable in real units. 
 
-Although there are a lot of different models that take into consideration strength of the correlation between values across time (e.g., generalized estimating equation models) or the random slope and intercepts of the subjects, we will use the linear effects model to interpret the trends of healthcare expenditure of a representative sample of the US non-institutionalized patients.
+Although there are a lot of different models that take into consideration the strength of the correlation between values across time (e.g., generalized estimating equation models) or the random slope and intercepts of  subjects and groups, we will use the linear effects model to interpret the trends of healthcare expenditure of a representative sample of the US non-institutionalized patients.
 
 
 # Motivating example
@@ -335,7 +335,7 @@ survey_model %>%
 
 From these findings, we can make several interpretations. 
 
-The most important estimates are the interaction terms. These provide the difference-in-differences estimation or the change in healthcare total costs between males and females due to an increase in the year. For instance, the interaction term `factor(male)1:factor(year)2017` is interpreted as the average difference in the change in total healthcare costs between males and females when the year increased from 2016 to 2017. This difference-in-difference is \$276.58 (95% CI: -\$215.91, \$769.07), which was not statistically significant. 
+The most important estimates are the interaction terms. These provide the difference-in-differences estimation or the change in healthcare total costs between males and females due to an increase in the year. For instance, the interaction term `factor(male)1:factor(year)2017` is interpreted as the average difference in the change in total healthcare costs between males and females when the year increased from 2016 to 2017. This difference-in-differences is \$276.58 (95% CI: -\$215.91, \$769.07), which was not statistically significant. 
 
 ## Average marginal effects between males and females at each year
 We can generate the average marginal effects or the differences in total healthcare costs between males and females at each year using the `margins` function. 
@@ -355,7 +355,7 @@ For instance, in 2021, males had an average total healthcare cost of \$1965; 95%
 
 ```{r, echo = TRUE, warning = FALSE, message = FALSE}
 # Equivalent to Stata's margin, dydx(year), at(male = 0:1)
-margins2 <- margins(survey_model, type = "response", design = survey_design, at = list(male = c("0", "1")), variables = "year")
+margins2 <- margins(survey_model, type = "response", design = survey_design, at = list(male = 0:1), variables = "year")
 summary(margins2)
 ```
 
@@ -365,6 +365,43 @@ We can plot the average marginal effects between males and females across time `
 ```{r, echo = TRUE, warning = FALSE, message = FALSE}
 # Plot the marginal effects
 plot_model(survey_model, type = "pred", terms = c("year", "male"), dot.size = 4., line.size = 1)
+```
+
+We could also plot the average marginal effects using `ggplot2` with the `ggpredict` package. 
+
+```{r, echo = TRUE, warning = FALSE, message = FALSE}
+# Plot the predicted values
+fit.dataframe <- ggpredict(survey_model, terms = c("year", "male"), design = survey_design)
+ggplot(fit.dataframe, aes(x, predicted, colour = group)) +
+  geom_line(size = 1.5) +
+  geom_point(size = 5) + 
+  labs(
+    x = "Year",
+    y = "Total healthcare costs",
+    colour = get_legend_title(fit.dataframe)
+  )
+```
+
+There are a few important things to plot with these figures. 
+
+In the first figure below, we see that the slopes or change in average total healthcare costs across the years are displayed for the males and females. The output from the `margins` function provides us with the within group change in total healthcare costs for males and females across time. For instance, the change from 2016 to 2017 for females (which is also called the slope between 2016 and 2017) was \$165. For males, their slope was \$441.
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE, out.width = "100%", fig.cap = "Average marginal effects or the Slopes of males and females."}
+knitr::include_graphics("Figure 2.png")
+```
+
+In the second figure, we can use the output from the `margins1` object to estimate the difference in total healthcare costs at each year between males and females. For instance, we can visualize the difference in total healthcare costs at 2019 between males and females is -\$990. 
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE, out.width = "100%", fig.cap = "Differences in total healthcare costs between males and females in 2019."}
+knitr::include_graphics("Figure 3.png")
+```
+
+The last figure is the most important. This visualizes the interaction term results. We are mostly interested in the interaction terms for trend analysis. It provides us with the difference-in-differences estimator. In other words, the interaction terms tell us the differences in the total healthcare costs between males and females as the year changes. 
+
+For instance, the slope change for females between 2018 and 2016 was approximately \$981. The slope change for males between 2018 and 2016 was \$1136. The difference between these two slope changes for males and females is \$1136 - \$981 = \$155. This is our differences-in-differences estimation, or we can state that this is the differences in total healthcare costs between males and females as the year changed from 2016 to 2018. 
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE, out.width = "100%", fig.cap = "Interaction terms - differences-in-differences estimation."}
+knitr::include_graphics("Figure 4.png")
 ```
 
 
