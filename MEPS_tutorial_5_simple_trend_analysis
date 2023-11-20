@@ -398,7 +398,7 @@ knitr::include_graphics("Figure 3.png")
 
 The last figure is the most important. This visualizes the interaction term results. We are mostly interested in the interaction terms for trend analysis. It provides us with the difference-in-differences estimator. In other words, the interaction terms tell us the differences in the total healthcare costs between males and females as the year changes. 
 
-For instance, the slope change for females between 2018 and 2016 was approximately \$981. The slope change for males between 2018 and 2016 was \$1136. The difference between these two slope changes for males and females is \$1136 - \$981 = \$155. This is our differences-in-differences estimation, or we can state that this is the differences in total healthcare costs between males and females as the year changed from 2016 to 2018. 
+For instance, the slope change for females between 2018 and 2016 was approximately \$981. The slope change for males between 2018 and 2016 was \$1136. The difference between these two slope changes for males and females is \$1136 - \$981 = \$155. This is our differences-in-differences estimation, or we can state that this is the differences in total healthcare costs between males and females as the year changed from 2016 to 2018. But, this difference-in-differences was not statistically significant since the 95% CI includes zero (95% CI: \$391, \$701).
 
 ```{r, echo = FALSE, warning = FALSE, message = FALSE, out.width = "100%", fig.cap = "Interaction terms - differences-in-differences estimation."}
 knitr::include_graphics("Figure 4.png")
